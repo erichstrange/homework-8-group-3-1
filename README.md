@@ -1,4 +1,34 @@
-# cibin-template
+# cibin
 
-## TO DO:
-Update this README.md file with information about your package implementation in a similar way to how it is done in [this example](https://github.com/fperez/mytoy). You should include a Binder badge just like that example. You can use that README.md as a starting point if you wish. Your repo should include all of the infrastructure described in that file so that it meets Python packaging requirements.
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/)
+
+
+Confidence bounds based on [Li and Ding](https://onlinelibrary.wiley.com/doi/pdf/10.1002/sim.6764).
+
+
+## Installation
+
+This project can currently only be installed from source, via
+
+```
+pip install .
+```
+
+or for a development installation via
+
+
+```
+pip install -e .
+```
+
+## Tests
+
+You can run the project test suite via
+
+```
+pytest mytoy
+```
+
+## License
+
+This project is released under the terms of the BSD 3-clause License.

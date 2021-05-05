@@ -1,0 +1,6 @@
+# Install dependencies for our package
+
+numpy >= 1.16  # Specify minimal numpy version
+scipy >= 1.6
+matplotlib  # Any matplotlib will do for us
+pytest
