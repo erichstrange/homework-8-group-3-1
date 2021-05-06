@@ -57,7 +57,9 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
         
     if ((alpha <= 0) or (alpha >= 1)):
         raise ValueError("Invalid value for alpha!")
-        
+    
+    if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
+        raise ValueError("subject count cannot be negative!")
 
     conf_set = {}
     n_tables, n_reps = 0, 0
@@ -128,6 +130,11 @@ def N_generator(N, n00, n01, n10, n11):
     N10, subjects with potential outcome 1 under control and 0 under treatment
     N11, subjects with potential outcome 1 under control and treatment
     '''
+    
+    if N < (n00 + n01 + n10 + n11):
+        raise ValueError("Number of subjects do not match!")
+    if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
+        raise ValueError("subject count cannot be negative!")
     for i in range(N):
         N00 = i
         for j in range(N-i):
@@ -167,6 +174,11 @@ def filterTable(Nt, n00, n01, n10, n11):
     ok : boolean
         True if table is consistent with the data
     '''
+    
+    if N < (n00 + n01 + n10 + n11):
+        raise ValueError("Number of subjects do not match!")
+    if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
+        raise ValueError("subject count cannot be negative!")
     N = np.sum(Nt)   # total subjects
     return max(0, n11-Nt[1], Nt[3]-n01, Nt[2]+Nt[3]-n10-n01) <= \
         min(Nt[3], n11, Nt[2]+Nt[3]-n01, N-Nt[1]-n01-n10)
@@ -185,5 +197,11 @@ def potential_outcomes(Nt):
     -------
     po : Nx2 table of potential outcomes consistent with Nt
     '''
+    if len(Nt) != 4:
+        raise ValueError("Table size must be 4: N00, N01, N10, N11 ")
+        
+    for i in range(len(Nt)):
+        if Nt[i] < 0:
+            raise ValueError("Cannot have a negative number as a potential outcome")
     return np.reshape(np.array([0, 0] * Nt[0] + [0, 1] * Nt[1] +
                                [1, 0] * Nt[2] + [1, 1] * Nt[3]), [-1, 2])
