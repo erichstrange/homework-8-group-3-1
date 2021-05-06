@@ -25,7 +25,7 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
     n10 : int
         number of subjects assigned to treatment 1 who had outcome 0
     n01 : int
-        number of subjects assigned to treatment 0 who had outcome 0
+        number of subjects assigned to treatment 0 who had outcome 1
     n00 : int
         number of subjects assigned to treatment 0 who had outcome 0
     alpha : float in (0, 1)
@@ -54,6 +54,10 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
     if exact and n_combs > max_combinations:
         raise ValueError(f"Please raise max_combinations to {n_combs} for \
                           exact solution.")
+        
+    if ((alpha <= 0) or (alpha >= 1)):
+        raise ValueError("Invalid value for alpha!")
+        
 
     conf_set = {}
     n_tables, n_reps = 0, 0
@@ -110,7 +114,7 @@ def N_generator(N, n00, n01, n10, n11):
     n00 : int
         number of subjects assigned to treatment 0 who had outcome 0
     n01 : int
-        number of subjects assigned to treatment 0 who had outcome 0
+        number of subjects assigned to treatment 0 who had outcome 1
     n10 : int
         number of subjects assigned to treatment 1 who had outcome 0
     n11 : int
