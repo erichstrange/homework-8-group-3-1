@@ -10,17 +10,26 @@ def test_tau_twosided_ci_1():
     Uses examples from Method 3 in Li & Ding's paper
     """
     
-    pass
+    bounds, a, b = tau_twosided_ci(2, 6, 8, 0, 0.05)
+    assert((bounds*(2+6+8)== [-14,-5]))
+    bounds, a, b = tau_twosided_ci(1, 1, 1, 13, 0.05)
+    assert((bounds*(1+1+1+13)== [-1,14]))
+    bounds, a, b = tau_twosided_ci(6, 0, 11, 3, 0.05)
+    assert((bounds*(6+11+3)== [-4,8]))
+        
 
 
 def test_tau_twosided_ci_2():
     """tau_twosided_ci test
     
-    Tests legal inputs to test_tau_twosided_ci
-    function and checks for proper output.
+    Tests that with small numbers, the lower bound
+    and upper bound are the same whether exact ==True
+    or exact== False
     """
-    
-    pass
+    bounds1, a, b = tau_twosided_ci(1, 1, 2, 0, 0.05, True)
+    bounds2, c, d = tau_twosided_ci(1, 1, 2, 0, 0.05, False)
+    assert(bounds1 == bounds2)
+    assert(a == c)
 
 def test_filterTable_1():
     """filterTable test
@@ -29,7 +38,7 @@ def test_filterTable_1():
     function and checks for proper output.
     """
     
-    pass
+    assert(filterTable([5,10,10,5], 6, 11, 10, 4) == False)
 
 def test_potential_outcomes_1():
     """potential_outcomes test
@@ -54,11 +63,6 @@ def test_N_generator_badinput_2():
     pytest.raises(ValueError, N_generator, -5, 10, 10, 5, 5)
     
     
-def test_filterTable_badinput_1():
-    """filterTable test
-    
-    Checks for invalid number of subjects"""
-    pytest.raises(ValueError, filterTable, 5, 10, 10, 5, 5)
     
 def test_filterTable_badinput_2():
     """filterTable test
