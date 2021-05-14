@@ -5,3 +5,4 @@ pdf: $(PDFS)
 
 %.pdf: %.inpynb
 	jupyter nbconvert $< --to pdf
+	
