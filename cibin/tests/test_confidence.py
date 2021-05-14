@@ -41,7 +41,7 @@ def test_filterTable_1():
     function and checks for proper output.
     """
     
-    assert(filterTable([5,10,10,5], 6, 11, 10, 4) == False)
+    assert(filterTable([5,10,10,5], 6, 11, 10, 3) == False)
 
 def test_potential_outcomes_1():
     """potential_outcomes test
@@ -50,21 +50,7 @@ def test_potential_outcomes_1():
     function and checks for proper output.
     """
     
-    pass
-    
-    
-def test_N_generator_badinput_1():
-    """N generator test
-    
-    Checks for invalid number of subjects"""
-    pytest.raises(ValueError, N_generator, 5, 10, 10, 5, 5)
-    
-def test_N_generator_badinput_2():
-    """N generator test
-    
-    Checks for negative subjects"""
-    pytest.raises(ValueError, N_generator, -5, 10, 10, 5, 5)
-    
+    assert(potential_outcomes([1,0,1,0]).tolist() == [[0,0],[1,0]])
     
     
 def test_filterTable_badinput_2():

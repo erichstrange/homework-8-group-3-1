@@ -131,10 +131,6 @@ def N_generator(N, n00, n01, n10, n11):
     N11, subjects with potential outcome 1 under control and treatment
     '''
     
-    if N < (n00 + n01 + n10 + n11):
-        raise ValueError("Number of subjects do not match!")
-    if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
-        raise ValueError("subject count cannot be negative!")
     for i in range(N):
         N00 = i
         for j in range(N-i):
@@ -177,8 +173,7 @@ def filterTable(Nt, n00, n01, n10, n11):
     
     if int(sum(Nt)) < int(n00 + n01 + n10 + n11):
         raise ValueError("Number of subjects do not match!")
-#     print("Nt Type: " + str(type(Nt)))
-# #     print("n00 type: " + str(type(n00)))
+
     if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
         raise ValueError("subject count cannot be negative!")
     N = np.sum(Nt)   # total subjects
