@@ -26,7 +26,7 @@ pip install -e .
 You can run the project test suite via
 
 ```
-pytest mytoy
+pytest test_confidence.py
 ```
 
 ## License
