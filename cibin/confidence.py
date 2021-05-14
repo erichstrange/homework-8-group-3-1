@@ -50,7 +50,7 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
     n = n11 + n10                     # size of treatment sample
     t_star = n11/n - n01/(N-n)        # unbiased estimate of tau
 
-    n_combs = int(comb(N, n))         # total number of samples for exact ans
+    n_combs = comb(N, n, exact=True)        # total number of samples for exact ans
     if exact and n_combs > max_combinations:
         raise ValueError(f"Please raise max_combinations to {n_combs} for \
                           exact solution.")
