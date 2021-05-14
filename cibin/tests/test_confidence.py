@@ -1,5 +1,5 @@
-from confidence import *
-
+from cibin import *
+import pytest
 
 
 def test_tau_twosided_ci_1():
@@ -11,11 +11,14 @@ def test_tau_twosided_ci_1():
     """
     
     bounds, a, b = tau_twosided_ci(2, 6, 8, 0, 0.05)
-    assert((bounds*(2+6+8)== [-14,-5]))
-    bounds, a, b = tau_twosided_ci(1, 1, 1, 13, 0.05)
-    assert((bounds*(1+1+1+13)== [-1,14]))
-    bounds, a, b = tau_twosided_ci(6, 0, 11, 3, 0.05)
-    assert((bounds*(6+11+3)== [-4,8]))
+    new_bounds = [i*(2+6+8) for i in bounds]
+    assert((new_bounds == [-14.0,-5.0]))
+    bounds_1, a_1, b_1 = tau_twosided_ci(1, 1, 1, 13, 0.05)
+    new_bounds_1 = [i*(1+1+1+13) for i in bounds_1]
+    assert(new_bounds_1== [-1.0,14.0])
+    bounds_2, a_2, b_2 = tau_twosided_ci(6, 0, 11, 3, 0.05)
+    new_bounds_2 = [i*(6+11+3) for i in bounds_2]
+    assert((new_bounds_2== [-4.0,8.0]))
         
 
 
@@ -68,7 +71,7 @@ def test_filterTable_badinput_2():
     """filterTable test
     
     Checks for negative subjects"""
-    pytest.raises(ValueError, filterTable, -5, 10, 10, 5, 5)
+    pytest.raises(ValueError, filterTable, [5,10,2,1], 10, -1, 5, 4)
     
     
 def test_tau_twosided_ci_badinput_1():
