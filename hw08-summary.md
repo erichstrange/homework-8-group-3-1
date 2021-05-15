@@ -1,5 +1,6 @@
 # Author Contribution Statement
-*Chen Feng Tsai, Erich Congo Strange, Kalie Knecht, and Gavril Moniaga*
+Chen Feng Tsai, Erich Congo Strange, Kalie Knecht, and Gavril Moniaga
+
 * Confidence interval code in confidence.py: Gavril 
 * Wrote test suite for confidence.py, and added assert statements in confidence.py: Congo
 * Contributed to docstrings in confidence.py: Congo
@@ -27,3 +28,7 @@
 
 ## Use Guide
 * Preliminary use guide in `docs/01-Getting-Started.ipynb` to assist the user in implementing the `cibin` code base. The notebook contains some background information on the mathematics being implemented as well as sample code. 
+
+## Analysis of Regeneron study
+* Used implemented methods to determine confidence bounds from recent Regeneron study on COVID-19 antibody study
+* Analyzed other scenarios of Regeneron data that could be analyzed with implemented methods
