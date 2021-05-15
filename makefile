@@ -1,8 +1,7 @@
-# makefile for analysis pdfs
-PDFS=
+nbs = $(wildcard *.ipynb)
+pdfs = $(nbs:%.ipynb=%.pdf)
 
-pdf: $(PDFS)
+all: $(pdfs)
 
-%.pdf: %.inpynb
-	jupyter nbconvert $< --to pdf
-	
+%.pdf: %.ipynb
+	jupyter-nbconvert --to pdf $<;
