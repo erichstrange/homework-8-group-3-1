@@ -7,6 +7,7 @@ import numpy as np
 import scipy as sp
 from scipy.special import comb
 from itertools import filterfalse, combinations
+from scipy.stats import hypergeom
 
 
 def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
@@ -50,10 +51,10 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
     n = n11 + n10                     # size of treatment sample
     t_star = n11/n - n01/(N-n)        # unbiased estimate of tau
 
-    n_combs = int(comb(N, n))         # total number of samples for exact ans
+    n_combs = int(comb(N, n,exact=True))         # total number of samples for exact ans
     if exact and n_combs > max_combinations:
         raise ValueError(f"Please raise max_combinations to {n_combs} for \
-                          exact solution.")
+                          #exact solution.")
         
     if ((alpha <= 0) or (alpha >= 1)):
         raise ValueError("Invalid value for alpha!")
@@ -175,7 +176,7 @@ def filterTable(Nt, n00, n01, n10, n11):
         True if table is consistent with the data
     '''
     
-    if Nt < (n00 + n01 + n10 + n11):
+    if sum(Nt) < (n00 + n01 + n10 + n11):
         raise ValueError("Number of subjects do not match!")
     if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
         raise ValueError("subject count cannot be negative!")
@@ -205,3 +206,150 @@ def potential_outcomes(Nt):
             raise ValueError("Cannot have a negative number as a potential outcome")
     return np.reshape(np.array([0, 0] * Nt[0] + [0, 1] * Nt[1] +
                                [1, 0] * Nt[2] + [1, 1] * Nt[3]), [-1, 2])
+
+
+def hypergeom_accept(N, G, n, cl=0.975, randomized=False):
+    """
+    Acceptance region for a randomized hypergeometric test for sterne method
+    If randomized==True, find the acceptance region for a randomized, exact 
+    level-alpha test of the null hypothesis X~Hypergeom(N,G,n). 
+    The acceptance region is the smallest possible. (And not, for instance, symmetric.)
+    If randomized==False, find the smallest conservative acceptance region.
+    Parameters
+    ----------
+    N : integer
+        number of independent trials
+    G : int
+        number of "good" in population
+    n : integer
+        number of sample
+    cl : float
+        confidence level  
+    ramndomized : Boolean
+        return randomized exact test or conservative non-randomized test?
+    Returns
+    --------
+    If randomized:
+    I : list
+        values for which the test never rejects
+    If not randomized:
+    I : list
+        values for which the test does not reject
+    """
+    assert n <= N, 'impossible sample size'
+    assert G <= N, 'impossible number of "good"'
+    assert 0 < cl < 1, 'silly confidence level'
+
+    alpha = 1 - cl
+    prob = np.arange(0, n+1)
+    I = list(prob)
+    pmf = hypergeom.pmf(prob, N, G, n)
+    bottom = 0
+    top = n
+    J = []
+    prob_J = 0
+    prob_tail = 0
+    while prob_tail < alpha:
+        p_bot = pmf[bottom]
+        p_top = pmf[top]
+        if p_bot < p_top:
+            J = [bottom]
+            prob_J = p_bot
+            bottom += 1
+        elif p_bot > p_top:
+            J = [top]
+            prob_J = p_top
+            top -= 1
+        else:
+            if bottom < top:
+                J = [bottom, top]
+                prob_J = p_bot + p_top
+                bottom += 1
+                top -= 1
+            else:
+                J = [bottom]
+                prob_J = p_bot
+                bottom += 1
+        prob_tail += prob_J
+        for j in J:
+            I.remove(j)
+    if randomized == False:
+        while prob_tail > alpha:
+            j = J.pop()
+            prob_tail -= pmf[j]
+            I.append(j)
+    return I
+
+
+def hypergeom_conf_interval(n, x, N, cl=0.975, alternative="two-sided", G=None):
+    """
+    Confidence interval for a hypergeometric distribution parameter G, the number of good
+    objects in a population in size N, based on the number x of good objects in a simple
+    random sample of size n.
+    Parameters
+    ----------
+    n : int
+        The number of draws without replacement.
+    x : int
+        The number of "good" objects in the sample.
+    N : int
+        The number of objects in the population.
+    cl : float in (0, 1)
+        The desired confidence level.
+    alternative : {"two-sided", "lower", "upper"}
+        Indicates the alternative hypothesis. Defalut is two-sided
+    G : int in [0, N]
+        Starting point in search for confidence bounds for the hypergeometric parameter G.
+
+    Returns
+    -------
+    ci_low, ci_upp : tuple
+        lower and upper confidence level with coverage (at least)
+        1-alpha.
+    Notes
+    -----
+    xtol : float
+        Tolerance
+    rtol : float
+        Tolerance
+    maxiter : int
+        Maximum number of iterations.
+    """
+    assert alternative in ("two-sided", "lower", "upper")
+    assert 0 <= x <= n, 'impossible arguments'
+    assert n <= N, 'impossible sample size'
+    assert 0 < cl < 1, 'silly confidence level'
+
+    if G is None:
+        G = (x / n) * N
+    ci_low = 0
+    ci_upp = N
+
+    if alternative == "lower" and x > 0:
+        ci_low = x
+        tail = hypergeom.sf(x - 1, N, ci_low, n)
+        while tail < (1 - cl):
+            ci_low += 1
+            tail = hypergeom.sf(x - 1, N, ci_low, n)
+
+    if alternative == "upper" and x < n:
+        tail = hypergeom.sf(x, N, ci_upp, n)
+        while tail > cl:
+            ci_upp -= 1
+            tail = hypergeom.sf(x, N, ci_upp, n)
+
+    if alternative == 'two-sided':
+        cl = 1 - (1 - cl) / 2
+        eps = 0.1
+        if x > 0:
+            while x not in hypergeom_accept(N, ci_low, n, cl, randomized=False):
+                ci_low += eps
+            ci_low -= eps
+            ci_low = round(ci_low)
+        if x < n:
+            while x not in hypergeom_accept(N, ci_upp, n, cl, randomized=False):
+                ci_upp -= eps
+            ci_upp += eps
+            ci_upp = round(ci_upp)
+
+    return ci_low, ci_upp
