@@ -1,6 +1,4 @@
-"""
-Implementation of 2 sided CI of treatment effect.
-"""
+"""Implementation of 2 sided CI of treatment effect."""
 
 import math
 import numpy as np
@@ -11,7 +9,7 @@ from itertools import filterfalse, combinations
 
 def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
                     max_combinations=10**5, reps=10**3):
-    '''
+    """
     Find 2-sided 1−alpha confidence bounds for the average treatment effect.
 
     Assuming a randomized experiment with binary outcomes and two treatments,
@@ -45,19 +43,17 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
         [lb, ub]: lower/upper bound of the confidence interval,
         [allocation that gives lb, allocation that gives ub],
         [# tables examined, total reps across simulations]
-    '''
+    """
     N = n11 + n10 + n01 + n00
     n = n11 + n10                     # size of treatment sample
     t_star = n11/n - n01/(N-n)        # unbiased estimate of tau
 
-    n_combs = comb(N, n, exact=True)        # total number of samples for exact ans
+    n_combs = comb(N, n, exact=True)  # total number of samples for exact ans
     if exact and n_combs > max_combinations:
         raise ValueError(f"Please raise max_combinations to {n_combs} for \
                           exact solution.")
-        
     if ((alpha <= 0) or (alpha >= 1)):
         raise ValueError("Invalid value for alpha!")
-    
     if (n11 < 0) or (n10 < 0) or (n01 < 0) or (n00 < 0):
         raise ValueError("subject count cannot be negative!")
 
@@ -70,10 +66,10 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
         t = abs(t_star - tau)             # test statistic
 
         if exact:
-            # generate samples     
-            mask = np.zeros((n_combs,N), dtype=bool)
+            # generate samples
+            mask = np.zeros((n_combs, N), dtype=bool)
             for i, sample in enumerate(combinations(range(N), n)):
-                mask[i,sample] = True
+                mask[i, sample] = True
 
             # calculate test statistic for each sample
             tau_hat = mask.dot(table[:, 1])/n - (~mask).dot(table[:, 0])/(N-n)
@@ -85,12 +81,12 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
                 conf_set[tau] = Nt
 
         else:
-            mask = np.zeros((reps,N), dtype=bool)
+            mask = np.zeros((reps, N), dtype=bool)
             for i in range(reps):
-                sample = np.random.choice(range(N),n, replace=False)
-                mask[i,sample] = True
+                sample = np.random.choice(range(N), n, replace=False)
+                mask[i, sample] = True
 
-            tau_hat = mask.dot(table[:,1])/n - (~mask).dot(table[:,0])/(N-n)
+            tau_hat = mask.dot(table[:, 1])/n - (~mask).dot(table[:, 0])/(N-n)
             dist = abs(tau_hat-tau)
             n_reps += reps
 
@@ -105,7 +101,9 @@ def tau_twosided_ci(n11, n10, n01, n00, alpha, exact=True,
 
 
 def N_generator(N, n00, n01, n10, n11):
-    '''
+    """
+    Table Generator.
+
     Generate tables algebraically consistent with data from an experiment
     with binary outcomes.
 
@@ -129,8 +127,7 @@ def N_generator(N, n00, n01, n10, n11):
     N01, subjects with potential outcome 0 under control and 1 under treatment
     N10, subjects with potential outcome 1 under control and 0 under treatment
     N11, subjects with potential outcome 1 under control and treatment
-    '''
-    
+    """
     for i in range(N):
         N00 = i
         for j in range(N-i):
@@ -145,7 +142,9 @@ def N_generator(N, n00, n01, n10, n11):
 
 
 def filterTable(Nt, n00, n01, n10, n11):
-    '''
+    """
+    Table Check.
+
     Check whether summary table Nt of binary outcomes is consistent with
     observed counts.
 
@@ -169,8 +168,7 @@ def filterTable(Nt, n00, n01, n10, n11):
     --------
     ok : boolean
         True if table is consistent with the data
-    '''
-    
+    """
     if int(sum(Nt)) < int(n00 + n01 + n10 + n11):
         raise ValueError("Number of subjects do not match!")
 
@@ -182,7 +180,7 @@ def filterTable(Nt, n00, n01, n10, n11):
 
 
 def potential_outcomes(Nt):
-    '''
+    """
     make a 2xN table of potential outcomes from the 2x2 summary table Nt.
 
     Parameters
@@ -193,12 +191,13 @@ def potential_outcomes(Nt):
     Returns
     -------
     po : Nx2 table of potential outcomes consistent with Nt
-    '''
+    """
     if len(Nt) != 4:
         raise ValueError("Table size must be 4: N00, N01, N10, N11 ")
-        
+
     for i in range(len(Nt)):
         if Nt[i] < 0:
-            raise ValueError("Cannot have a negative number as a potential outcome")
+            raise ValueError("Cannot have a " +
+                             "negative number as a potential outcome")
     return np.reshape(np.array([0, 0] * Nt[0] + [0, 1] * Nt[1] +
                                [1, 0] * Nt[2] + [1, 1] * Nt[3]), [-1, 2])
